@@ -29,6 +29,6 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ui\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="ui" />
+    <None Update="ui\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
