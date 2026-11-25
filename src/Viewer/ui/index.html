@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QASSIMZ Thumbs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span><div class="grain"></div></div>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side glass">
+    <div class="brand">
+      <img src="logo.png" alt="" class="logo">
+      <div><b>قَاسِمز</b><small>Thumbs</small></div>
+    </div>
+
+    <button class="btn primary wide" id="btnOpen">📂 افتح مجلد</button>
+
+    <div class="side-scroll">
+      <h6>أماكن</h6>
+      <nav id="places"></nav>
+      <h6>الأقراص</h6>
+      <nav id="drives"></nav>
+      <h6 id="recentH">الأخيرة</h6>
+      <nav id="recent"></nav>
+    </div>
+
+    <div class="side-foot">
+      <button class="update-pill hidden" id="updPill"><b>تحديث جديد</b><span id="updVer"></span></button>
+      <button class="xp-pill" id="xpPill"><i class="led"></i><span id="xpText">مصغّرات الويندوز</span></button>
+      <div class="foot-row">
+        <button class="pill-btn" id="btnGithub" title="GitHub"><svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg></button>
+        <button class="pill-btn accent" id="btnSupport">♥ الدعم</button>
+        <button class="pill-btn" id="btnSettings" title="الإعدادات">⚙</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <header class="toolbar glass">
+      <div class="nav-btns">
+        <button class="ib" id="btnBack" title="رجوع">→</button>
+        <button class="ib" id="btnUp" title="المجلد الأعلى">↑</button>
+      </div>
+      <div class="crumbs" id="crumbs"></div>
+      <input class="search" id="search" placeholder="ابحث…">
+    </header>
+
+    <div class="subbar">
+      <div class="seg" id="filterSeg">
+        <button data-v="all" class="on">الكل</button>
+        <button data-v="design">تصميم</button>
+        <button data-v="image">صور</button>
+        <button data-v="raw">RAW</button>
+        <button data-v="video">فيديو</button>
+      </div>
+      <span class="count muted" id="count"></span>
+      <div class="sub-right">
+        <select class="sel" id="sortSel">
+          <option value="name">الاسم</option>
+          <option value="date">الأحدث</option>
+          <option value="size">الحجم</option>
+          <option value="type">النوع</option>
+        </select>
+        <label class="size-ctl" title="حجم المصغّرات">🖼️<input type="range" id="sizeRange" min="110" max="360" step="10" value="180"></label>
+      </div>
+    </div>
+
+    <section class="grid-wrap" id="gridWrap">
+      <div class="grid" id="grid"></div>
+      <div class="empty hidden" id="empty">
+        <div class="orb"><img src="logo.png" alt=""></div>
+        <h2>افتح أي مجلد</h2>
+        <p class="muted">PSD و AI و EPS و XD و Sketch و MOGRT و Affinity و RAW وكل الصور والفيديوهات، كلها كمصغّرات.<br>تقدر كمان تسحب مجلد وترميه هنا.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ LIGHTBOX ============ -->
+<div class="lb hidden" id="lb">
+  <div class="lb-stage" id="lbStage">
+    <img id="lbImg" alt="" draggable="false">
+    <div class="spinner" id="lbSpin"></div>
+    <button class="lb-nav prev" id="lbPrev">›</button>
+    <button class="lb-nav next" id="lbNext">‹</button>
+  </div>
+  <aside class="lb-info glass">
+    <button class="ib close" id="lbClose">✕</button>
+    <span class="badge big" id="lbBadge"></span>
+    <h2 id="lbName"></h2>
+    <dl id="lbMeta"></dl>
+    <div class="lb-actions">
+      <button class="btn primary" id="lbOpen">افتح في البرنامج</button>
+      <button class="btn" id="lbReveal">📁 اعرض في المجلد</button>
+      <button class="btn" id="lbCopy">⧉ انسخ الصورة</button>
+      <button class="btn" id="lbExport">⬇ صدّر PNG / JPG</button>
+      <button class="btn ghost" id="lbWith">افتح بـ…</button>
+    </div>
+    <p class="muted small">← → للتنقل · Esc للخروج · العجلة للتكبير</p>
+  </aside>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div class="modal hidden" id="settings">
+  <div class="card glass modal-box wide-box">
+    <button class="ib close" id="setClose">✕</button>
+    <div class="set-head">
+      <img src="logo.png" alt="" class="set-logo">
+      <div><h2>QASSIMZ Thumbs</h2><p class="muted">من <b>أحمد قاسم</b> — قَاسِمز · <span id="verText"></span></p></div>
+    </div>
+
+    <h3>مصغّرات الويندوز</h3>
+    <label class="tog"><input type="checkbox" id="s_xp"><span class="sw"></span><div><b>اعرض ملفات التصميم كصور في File Explorer</b><small>PSD · AI · EPS · INDD · XD · Sketch · Krita · Procreate · MOGRT · Affinity · CorelDRAW</small></div></label>
+    <label class="tog"><input type="checkbox" id="s_raw"><span class="sw"></span><div><b>صور الكاميرا RAW كمان</b><small>CR2 · CR3 · NEF · ARW · DNG · RAF · ORF · RW2 …</small></div></label>
+    <div class="row-btns">
+      <button class="btn" id="btnRefreshXp">↻ حدّث مصغّرات الويندوز</button>
+      <span class="muted small">لو لسه شايف أيقونات بدل الصور: ده بيمسح الكاش القديم ويعيد تشغيل الـ Explorer.</span>
+    </div>
+
+    <h3>البرنامج</h3>
+    <label class="tog"><input type="checkbox" id="s_upd"><span class="sw"></span><div><b>تحديث تلقائي</b><small>يشوف آخر إصدار على GitHub</small></div></label>
+    <div class="row-btns">
+      <button class="btn" id="btnCheckUpd">ابحث عن تحديث</button>
+      <button class="btn ghost" id="btnClearCache">امسح كاش المصغّرات (<span id="cacheSize">0</span>)</button>
+    </div>
+    <div class="upd-box hidden" id="updBox"><b>🎉 إصدار جديد <span id="updVer2"></span></b><div class="bar"><span id="updBar"></span></div><button class="btn primary" id="btnUpdate">حدّث دلوقتي</button></div>
+
+    <div class="about-btns">
+      <button class="btn" id="btnGithub2">⭐ GitHub</button>
+      <button class="btn primary" id="btnSupport2">♥ الدعم والإبلاغ عن مشكلة</button>
+      <button class="btn ghost" id="btnSite">qassimz.com</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="welcome">
+  <div class="card glass modal-box">
+    <div class="orb"><img src="logo.png" alt=""></div>
+    <h2>أهلاً بيك في QASSIMZ Thumbs</h2>
+    <p class="muted">ملفات PSD و AI وباقي ملفات التصميم بقت بتظهر كصور في الويندوز نفسه.<br>وهنا تقدر تتفرج على أي مجلد وتكبّر أي صورة.</p>
+    <button class="btn primary big" id="btnWelcome"><span>يلا</span><i>→</i></button>
+  </div>
+</div>
+
+<div class="drop hidden" id="drop"><div><b>ارمي المجلد هنا</b></div></div>
+<div class="toast hidden" id="toast"><span id="toastMsg"></span><div id="toastAct"></div></div>
+
+<script src="app.js"></script>
+</body>
+</html>

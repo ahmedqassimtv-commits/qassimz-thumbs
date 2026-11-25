@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>QASSIMZ Thumbs</AssemblyName>
+    <RootNamespace>Qassimz.Thumbs.Viewer</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>..\..\assets\logo.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>QASSIMZ Thumbs</Product>
+    <Company>QASSIMZ</Company>
+    <Copyright>© Ahmed Qassim — QASSIMZ</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Shell\Extractor.cs" Link="Shared\Extractor.cs" />
+    <Compile Include="..\Shell\ThumbnailProvider.cs" Link="Shared\ThumbnailProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ui\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="ui" />
+  </ItemGroup>
+</Project>

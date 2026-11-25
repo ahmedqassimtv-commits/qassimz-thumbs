@@ -1,0 +1,91 @@
+name: Build & Release
+
+# Every push to main: read AppVersion from src/Viewer/MainForm.cs.
+# If release vX.Y.Z doesn't exist yet → build Setup + Portable and publish it.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.v.outputs.tag }}
+      ver: ${{ steps.v.outputs.ver }}
+      exists: ${{ steps.v.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(grep -oP 'AppVersion = "\K[^"]+' src/Viewer/MainForm.cs)
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VER" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VER" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+
+  build:
+    needs: version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Build
+        run: dotnet build QassimzThumbs.sln -c Release -p:Version=${{ needs.version.outputs.ver }}
+      - name: Stage app folder
+        shell: pwsh
+        run: |
+          $v = "${{ needs.version.outputs.ver }}"
+          New-Item -ItemType Directory -Force dist/app, "dist/app/shell/$v" | Out-Null
+          Copy-Item src/Viewer/bin/Release/net48/* dist/app -Recurse -Force
+          Copy-Item src/Shell/bin/Release/net48/QassimzThumbs.Shell.dll "dist/app/shell/$v/"
+          Remove-Item dist/app/*.pdb -ErrorAction SilentlyContinue
+          Get-ChildItem dist/app -Recurse | Select-Object FullName, Length | Format-Table -AutoSize
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Arabic language file for the installer
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $inno = "${env:ProgramFiles(x86)}\Inno Setup 6\Languages"
+          $found = Get-ChildItem -Path $inno -Recurse -Filter "Arabic.isl" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($found) { Copy-Item $found.FullName installer/Arabic.isl; exit 0 }
+          foreach ($u in @("https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Arabic.isl",
+                           "https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Arabic.isl")) {
+            try { Invoke-WebRequest $u -OutFile installer/Arabic.isl -ErrorAction Stop; exit 0 } catch {}
+          }
+      - name: Build installer
+        shell: pwsh
+        run: '& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVer=${{ needs.version.outputs.ver }}" installer\setup.iss'
+      - name: Portable zip
+        shell: pwsh
+        run: Compress-Archive -Path "dist/app/*" -DestinationPath "dist/QASSIMZ-Thumbs-Portable.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QASSIMZ-Thumbs
+          path: |
+            dist/QASSIMZ-Thumbs-Setup-*.exe
+            dist/QASSIMZ-Thumbs-Portable.zip
+      - name: Publish release
+        if: needs.version.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: QASSIMZ Thumbs ${{ needs.version.outputs.tag }}
+          make_latest: true
+          body: |
+            ## ⬇️ التحميل
+            - **QASSIMZ-Thumbs-Setup**: التسطيب العادي (موصى بيه، وبيشغّل المصغّرات في الويندوز وبيحدّث نفسه)
+            - **Portable.zip**: من غير تسطيب (شغّل المصغّرات من ⚙ الإعدادات)
+
+            لو ظهرت شاشة SmartScreen: **More info ← Run anyway**.
+          files: |
+            dist/QASSIMZ-Thumbs-Setup-*.exe
+            dist/QASSIMZ-Thumbs-Portable.zip

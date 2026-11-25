@@ -1,0 +1,26 @@
+﻿تعليمات QASSIMZ Thumbs
+=======================
+
+برنامج بيخلّي ملفات التصميم والـ RAW تظهر كصور (مصغّرات) في File Explorer،
+ومعاه برنامج عارض تشوف فيه أي مجلد كمصغّرات وتكبّر أي صورة.
+
+بعد التسطيب:
+ 1) افتح أي مجلد فيه ملفات PSD أو AI… في File Explorer، هتلاقيها ظهرت كصور.
+    لو لسه شايف أيقونات: افتح البرنامج ← الإعدادات ⚙ ← «حدّث مصغّرات الويندوز».
+ 2) افتح البرنامج (أو كليك يمين على أي مجلد ← «اعرض بـ QASSIMZ Thumbs»).
+ 3) دبل كليك على أي صورة لتكبيرها: الأسهم للتنقل، والعجلة للزوم، و Esc للخروج.
+ 4) من الصورة الكبيرة تقدر: تفتحها في البرنامج بتاعها، أو تنسخها، أو تصدّرها PNG / JPG.
+
+الصيغ المدعومة في الويندوز:
+ PSD, PSB, AI, EPS, INDD, XD, Sketch, Krita, OpenRaster, Procreate,
+ MOGRT, Affinity (Designer / Photo / Publisher), CorelDRAW, Clip Studio
+ و RAW (اختياري): CR2, CR3, NEF, ARW, DNG, RAF, ORF, RW2 …
+
+ملاحظة PSD: لو الملف اتحفظ من غير «Maximize Compatibility»
+البرنامج بيعرض المصغّر الصغير اللي فوتوشوب حطه جوه الملف.
+
+المتطلبات: Windows 10 / 11 (64-bit).
+GitHub: https://github.com/ahmedqassimtv-commits/qassimz-thumbs
+الدعم:  https://github.com/ahmedqassimtv-commits/qassimz-thumbs/issues
+
+© أحمد قاسم — قَاسِمز
