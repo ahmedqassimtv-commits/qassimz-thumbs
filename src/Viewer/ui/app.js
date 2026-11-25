@@ -313,10 +313,10 @@ function demoThumb(it, s) {
   const c = document.createElement("canvas"); const h0 = [...it.n].reduce((a, ch) => a + ch.charCodeAt(0), 0);
   const portrait = h0 % 3 === 0, w = portrait ? s * 0.7 : s, h = portrait ? s : s * 0.5625 * (h0 % 2 ? 1 : 1.3);
   c.width = w; c.height = h; const g = c.getContext("2d");
-  const pal = [["#ff2d55", "#ff9a3d"], ["#3a0a1f", "#ff5a2a"], ["#8a1035", "#ffb36b"], ["#1a0610", "#ff2d55"], ["#ff7a45", "#ffd1d9"]][h0 % 5];
+  const pal = [["#0a84ff", "#5ff0ff"], ["#081a38", "#2bb5ff"], ["#1e3a8a", "#32d4ff"], ["#040a14", "#0a84ff"], ["#3fa9ff", "#d8f6ff"]][h0 % 5];
   const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, pal[0]); gr.addColorStop(1, pal[1]); g.fillStyle = gr; g.fillRect(0, 0, w, h);
   g.globalAlpha = .35; g.fillStyle = "#fff"; g.beginPath(); g.arc(w * (0.2 + (h0 % 7) / 10), h * .4, Math.min(w, h) * .28, 0, 7); g.fill();
-  g.globalAlpha = .9; g.fillStyle = "#0a0407"; g.font = `800 ${Math.round(h * .16)}px 'Thmanyah Display'`; g.textAlign = "center"; g.fillText(["قاسمز", "الحلقة ١٢", "QASSIMZ", "كواليس", "إنترو"][h0 % 5], w / 2, h * .78);
+  g.globalAlpha = .9; g.fillStyle = "#04132b"; g.font = `800 ${Math.round(h * .16)}px 'Thmanyah Display'`; g.textAlign = "center"; g.fillText(["قاسمز", "الحلقة ١٢", "QASSIMZ", "كواليس", "إنترو"][h0 % 5], w / 2, h * .78);
   return (demoCache[key] = c.toDataURL());
 }
 

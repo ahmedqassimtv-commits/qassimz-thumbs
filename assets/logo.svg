@@ -1,68 +1,53 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <radialGradient id="base" cx="50%" cy="20%" r="95%">
-      <stop offset="0" stop-color="#3a0a1f"/>
-      <stop offset=".55" stop-color="#1a0610"/>
-      <stop offset="1" stop-color="#0a0407"/>
+    <radialGradient id="base" cx="50%" cy="18%" r="95%">
+      <stop offset="0" stop-color="#123a73"/><stop offset=".55" stop-color="#081a38"/><stop offset="1" stop-color="#040a14"/>
     </radialGradient>
-    <radialGradient id="ember" cx="70%" cy="95%" r="60%">
-      <stop offset="0" stop-color="#ff5a2a" stop-opacity=".55"/>
-      <stop offset="1" stop-color="#ff5a2a" stop-opacity="0"/>
+    <radialGradient id="glowB" cx="70%" cy="95%" r="60%">
+      <stop offset="0" stop-color="#32d4ff" stop-opacity=".45"/><stop offset="1" stop-color="#32d4ff" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="270" y1="270" x2="800" y2="800">
-      <stop offset="0" stop-color="#ff2d55"/>
-      <stop offset=".6" stop-color="#ff4d4d"/>
-      <stop offset="1" stop-color="#ff9a3d"/>
+    <linearGradient id="img" gradientUnits="userSpaceOnUse" x1="300" y1="240" x2="724" y2="784">
+      <stop offset="0" stop-color="#0a84ff"/><stop offset=".6" stop-color="#2bb5ff"/><stop offset="1" stop-color="#5ff0ff"/>
     </linearGradient>
-    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#ffe2e8"/>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".96"/><stop offset="1" stop-color="#dcefff" stop-opacity=".92"/>
+    </linearGradient>
+    <linearGradient id="flap" gradientUnits="userSpaceOnUse" x1="600" y1="650" x2="470" y2="525">
+      <stop offset="0" stop-color="#9fd8ff"/><stop offset=".45" stop-color="#e8f6ff"/><stop offset="1" stop-color="#ffffff"/>
     </linearGradient>
     <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fff" stop-opacity=".28"/>
-      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#fff" stop-opacity=".26"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </linearGradient>
     <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
-      <stop offset=".35" stop-color="#fff" stop-opacity=".06"/>
-      <stop offset="1" stop-color="#ff7a45" stop-opacity=".35"/>
+      <stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".35" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#5ff0ff" stop-opacity=".4"/>
     </linearGradient>
-    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="22" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="24" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
     <clipPath id="sq"><path d="M1000.0 512.0 L999.9 639.5 L999.5 680.2 L998.9 709.7 L998.1 733.7 L997.0 754.3 L995.7 772.4 L994.1 788.6 L992.3 803.4 L990.3 817.1 L988.0 829.7 L985.5 841.5 L982.7 852.5 L979.6 862.9 L976.3 872.6 L972.7 881.8 L968.9 890.5 L964.7 898.8 L960.3 906.6 L955.6 913.9 L950.7 920.9 L945.4 927.6 L939.8 933.8 L933.8 939.8 L927.6 945.4 L920.9 950.7 L913.9 955.6 L906.6 960.3 L898.8 964.7 L890.5 968.9 L881.8 972.7 L872.6 976.3 L862.9 979.6 L852.5 982.7 L841.5 985.5 L829.7 988.0 L817.1 990.3 L803.4 992.3 L788.6 994.1 L772.4 995.7 L754.3 997.0 L733.7 998.1 L709.7 998.9 L680.2 999.5 L639.5 999.9 L512.0 1000.0 L384.5 999.9 L343.8 999.5 L314.3 998.9 L290.3 998.1 L269.7 997.0 L251.6 995.7 L235.4 994.1 L220.6 992.3 L206.9 990.3 L194.3 988.0 L182.5 985.5 L171.5 982.7 L161.1 979.6 L151.4 976.3 L142.2 972.7 L133.5 968.9 L125.2 964.7 L117.4 960.3 L110.1 955.6 L103.1 950.7 L96.4 945.4 L90.2 939.8 L84.2 933.8 L78.6 927.6 L73.3 920.9 L68.4 913.9 L63.7 906.6 L59.3 898.8 L55.1 890.5 L51.3 881.8 L47.7 872.6 L44.4 862.9 L41.3 852.5 L38.5 841.5 L36.0 829.7 L33.7 817.1 L31.7 803.4 L29.9 788.6 L28.3 772.4 L27.0 754.3 L25.9 733.7 L25.1 709.7 L24.5 680.2 L24.1 639.5 L24.0 512.0 L24.1 384.5 L24.5 343.8 L25.1 314.3 L25.9 290.3 L27.0 269.7 L28.3 251.6 L29.9 235.4 L31.7 220.6 L33.7 206.9 L36.0 194.3 L38.5 182.5 L41.3 171.5 L44.4 161.1 L47.7 151.4 L51.3 142.2 L55.1 133.5 L59.3 125.2 L63.7 117.4 L68.4 110.1 L73.3 103.1 L78.6 96.4 L84.2 90.2 L90.2 84.2 L96.4 78.6 L103.1 73.3 L110.1 68.4 L117.4 63.7 L125.2 59.3 L133.5 55.1 L142.2 51.3 L151.4 47.7 L161.1 44.4 L171.5 41.3 L182.5 38.5 L194.3 36.0 L206.9 33.7 L220.6 31.7 L235.4 29.9 L251.6 28.3 L269.7 27.0 L290.3 25.9 L314.3 25.1 L343.8 24.5 L384.5 24.1 L512.0 24.0 L639.5 24.1 L680.2 24.5 L709.7 25.1 L733.7 25.9 L754.3 27.0 L772.4 28.3 L788.6 29.9 L803.4 31.7 L817.1 33.7 L829.7 36.0 L841.5 38.5 L852.5 41.3 L862.9 44.4 L872.6 47.7 L881.8 51.3 L890.5 55.1 L898.8 59.3 L906.6 63.7 L913.9 68.4 L920.9 73.3 L927.6 78.6 L933.8 84.2 L939.8 90.2 L945.4 96.4 L950.7 103.1 L955.6 110.1 L960.3 117.4 L964.7 125.2 L968.9 133.5 L972.7 142.2 L976.3 151.4 L979.6 161.1 L982.7 171.5 L985.5 182.5 L988.0 194.3 L990.3 206.9 L992.3 220.6 L994.1 235.4 L995.7 251.6 L997.0 269.7 L998.1 290.3 L998.9 314.3 L999.5 343.8 L999.9 384.5Z"/></clipPath>
+    <clipPath id="card"><rect x="300" y="240" width="424" height="544" rx="60"/></clipPath>
+    <clipPath id="pagecut"><polygon points="0,0 1024,0 1024,220 220,1024 0,1024"/></clipPath>
   </defs>
-
   <g clip-path="url(#sq)">
     <rect width="1024" height="1024" fill="url(#base)"/>
-    <rect width="1024" height="1024" fill="url(#ember)"/>
-
-    <!-- thumbnail grid: three glass thumbnails + one hero thumbnail popping out -->
-    <g transform="translate(-27 -27)">
-    <rect x="300" y="300" width="200" height="200" rx="48" fill="#fff" fill-opacity="0.1"/>
-    <rect x="300" y="300" width="200" height="200" rx="48" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="3"/>
-    <path d="M336 456 L386 392 L418 430 L440 406 L468 456 Z" fill="#fff" fill-opacity=".28"/>
-    <circle cx="446" cy="358" r="16" fill="#fff" fill-opacity=".28"/>
-    <rect x="524" y="300" width="200" height="200" rx="48" fill="#fff" fill-opacity="0.14"/>
-    <rect x="524" y="300" width="200" height="200" rx="48" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="3"/>
-    <path d="M560 456 L610 392 L642 430 L664 406 L692 456 Z" fill="#fff" fill-opacity=".28"/>
-    <circle cx="670" cy="358" r="16" fill="#fff" fill-opacity=".28"/>
-    <rect x="300" y="524" width="200" height="200" rx="48" fill="#fff" fill-opacity="0.14"/>
-    <rect x="300" y="524" width="200" height="200" rx="48" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="3"/>
-    <path d="M336 680 L386 616 L418 654 L440 630 L468 680 Z" fill="#fff" fill-opacity=".28"/>
-    <circle cx="446" cy="582" r="16" fill="#fff" fill-opacity=".28"/>
-    <linearGradient id="hero" gradientUnits="userSpaceOnUse" x1="480" y1="480" x2="790" y2="790">
-      <stop offset="0" stop-color="#ff2d55"/><stop offset=".55" stop-color="#ff4d4d"/><stop offset="1" stop-color="#ff9a3d"/>
-    </linearGradient>
-    <g filter="url(#glow)">
-      <rect x="486" y="486" width="292" height="292" rx="70" fill="url(#hero)"/>
+    <rect width="1024" height="1024" fill="url(#glowB)"/>
+    <!-- the picture hidden under the file -->
+    <g filter="url(#glow)"><rect x="300" y="240" width="424" height="544" rx="60" fill="url(#img)"/></g>
+    <g clip-path="url(#card)">
+      <circle cx="668" cy="628" r="30" fill="#fff"/>
+      <path d="M520 800 L612 690 L652 734 L686 700 L760 800 Z" fill="#fff" stroke="#fff" stroke-width="12" stroke-linejoin="round"/>
     </g>
-    <rect x="486" y="486" width="292" height="292" rx="70" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="4"/>
-    <path d="M534 720 L604 628 L650 682 L682 646 L730 720 Z" fill="#fff" stroke="#fff" stroke-width="14" stroke-linejoin="round"/>
-    <circle cx="696" cy="562" r="28" fill="#fff"/>
+    <!-- the file page, corner cut along x+y=1244 -->
+    <g clip-path="url(#pagecut)">
+      <rect x="300" y="240" width="424" height="544" rx="60" fill="url(#page)"/>
+      <rect x="360" y="318" width="190" height="34" rx="17" fill="#0a84ff" opacity=".85"/>
+      <rect x="360" y="384" width="300" height="24" rx="12" fill="#0a84ff" opacity=".28"/>
+      <rect x="360" y="432" width="250" height="24" rx="12" fill="#0a84ff" opacity=".28"/>
+      <rect x="360" y="480" width="150" height="24" rx="12" fill="#0a84ff" opacity=".28"/>
     </g>
-    <!-- liquid glass sheen -->
+    <!-- peeled corner -->
+    <path d="M724 520 C 650 505, 540 505, 478 528 C 456 590, 456 700, 460 784 Z" fill="#05122a" opacity=".45" filter="url(#soft)" transform="translate(-14 -6)"/>
+    <path d="M724 520 C 650 505, 540 505, 478 528 C 456 590, 456 700, 460 784 Z" fill="url(#flap)"/>
+    <path d="M724 520 L460 784" stroke="#fff" stroke-opacity=".9" stroke-width="5" stroke-linecap="round"/>
     <path d="M24 24h976v330C820 300 640 280 512 300S180 360 24 420z" fill="url(#shine)"/>
   </g>
   <path d="M998.0 512.0 L997.9 639.0 L997.5 679.5 L996.9 708.9 L996.1 732.8 L995.0 753.3 L993.7 771.3 L992.2 787.5 L990.4 802.2 L988.3 815.8 L986.1 828.4 L983.5 840.1 L980.7 851.1 L977.7 861.4 L974.4 871.2 L970.8 880.3 L967.0 889.0 L962.9 897.2 L958.5 904.9 L953.8 912.3 L948.9 919.3 L943.6 925.8 L938.0 932.1 L932.1 938.0 L925.8 943.6 L919.3 948.9 L912.3 953.8 L904.9 958.5 L897.2 962.9 L889.0 967.0 L880.3 970.8 L871.2 974.4 L861.4 977.7 L851.1 980.7 L840.1 983.5 L828.4 986.1 L815.8 988.3 L802.2 990.4 L787.5 992.2 L771.3 993.7 L753.3 995.0 L732.8 996.1 L708.9 996.9 L679.5 997.5 L639.0 997.9 L512.0 998.0 L385.0 997.9 L344.5 997.5 L315.1 996.9 L291.2 996.1 L270.7 995.0 L252.7 993.7 L236.5 992.2 L221.8 990.4 L208.2 988.3 L195.6 986.1 L183.9 983.5 L172.9 980.7 L162.6 977.7 L152.8 974.4 L143.7 970.8 L135.0 967.0 L126.8 962.9 L119.1 958.5 L111.7 953.8 L104.7 948.9 L98.2 943.6 L91.9 938.0 L86.0 932.1 L80.4 925.8 L75.1 919.3 L70.2 912.3 L65.5 904.9 L61.1 897.2 L57.0 889.0 L53.2 880.3 L49.6 871.2 L46.3 861.4 L43.3 851.1 L40.5 840.1 L37.9 828.4 L35.7 815.8 L33.6 802.2 L31.8 787.5 L30.3 771.3 L29.0 753.3 L27.9 732.8 L27.1 708.9 L26.5 679.5 L26.1 639.0 L26.0 512.0 L26.1 385.0 L26.5 344.5 L27.1 315.1 L27.9 291.2 L29.0 270.7 L30.3 252.7 L31.8 236.5 L33.6 221.8 L35.7 208.2 L37.9 195.6 L40.5 183.9 L43.3 172.9 L46.3 162.6 L49.6 152.8 L53.2 143.7 L57.0 135.0 L61.1 126.8 L65.5 119.1 L70.2 111.7 L75.1 104.7 L80.4 98.2 L86.0 91.9 L91.9 86.0 L98.2 80.4 L104.7 75.1 L111.7 70.2 L119.1 65.5 L126.8 61.1 L135.0 57.0 L143.7 53.2 L152.8 49.6 L162.6 46.3 L172.9 43.3 L183.9 40.5 L195.6 37.9 L208.2 35.7 L221.8 33.6 L236.5 31.8 L252.7 30.3 L270.7 29.0 L291.2 27.9 L315.1 27.1 L344.5 26.5 L385.0 26.1 L512.0 26.0 L639.0 26.1 L679.5 26.5 L708.9 27.1 L732.8 27.9 L753.3 29.0 L771.3 30.3 L787.5 31.8 L802.2 33.6 L815.8 35.7 L828.4 37.9 L840.1 40.5 L851.1 43.3 L861.4 46.3 L871.2 49.6 L880.3 53.2 L889.0 57.0 L897.2 61.1 L904.9 65.5 L912.3 70.2 L919.3 75.1 L925.8 80.4 L932.1 86.0 L938.0 91.9 L943.6 98.2 L948.9 104.7 L953.8 111.7 L958.5 119.1 L962.9 126.8 L967.0 135.0 L970.8 143.7 L974.4 152.8 L977.7 162.6 L980.7 172.9 L983.5 183.9 L986.1 195.6 L988.3 208.2 L990.4 221.8 L992.2 236.5 L993.7 252.7 L995.0 270.7 L996.1 291.2 L996.9 315.1 L997.5 344.5 L997.9 385.0Z" fill="none" stroke="url(#rim)" stroke-width="4"/>

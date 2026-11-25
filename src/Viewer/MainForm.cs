@@ -20,7 +20,7 @@ namespace Qassimz.Thumbs.Viewer
         public const string AppVersion = "1.0.0";
         public const string Repo = "ahmedqassimtv-commits/qassimz-thumbs";
 
-        readonly WebView2 web = new WebView2 { Dock = DockStyle.Fill, DefaultBackgroundColor = Color.FromArgb(10, 4, 7) };
+        readonly WebView2 web = new WebView2 { Dock = DockStyle.Fill, DefaultBackgroundColor = Color.FromArgb(4, 10, 20) };
         readonly JavaScriptSerializer json = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
         readonly string startPath;
         CoreWebView2Environment env;
@@ -33,7 +33,7 @@ namespace Qassimz.Thumbs.Viewer
         {
             this.startPath = startPath;
             Text = "QASSIMZ Thumbs";
-            BackColor = Color.FromArgb(10, 4, 7);
+            BackColor = Color.FromArgb(4, 10, 20);
             MinimumSize = new Size(980, 640);
             StartPosition = FormStartPosition.CenterScreen;
             var b = settings.Bounds;
@@ -62,7 +62,7 @@ namespace Qassimz.Thumbs.Viewer
         {
             base.OnHandleCreated(e);
             int on = 1; DwmSetWindowAttribute(Handle, 20, ref on, 4);              // immersive dark mode
-            int caption = 0x00_14_06_1F; DwmSetWindowAttribute(Handle, 35, ref caption, 4); // COLORREF 0x00BBGGRR → #1F0614
+            int caption = 0x00_38_1A_08; DwmSetWindowAttribute(Handle, 35, ref caption, 4); // COLORREF 0x00BBGGRR → #081A38
             int text = 0x00_F8_F4_F4; DwmSetWindowAttribute(Handle, 36, ref text, 4);
         }
 

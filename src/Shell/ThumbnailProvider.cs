@@ -38,7 +38,7 @@ namespace Qassimz.Thumbs
         {
             try
             {
-                pstream.Stat(out STATSTG st, 1 /* STATFLAG_NONAME */);
+                pstream.Stat(out System.Runtime.InteropServices.ComTypes.STATSTG st, 1 /* STATFLAG_NONAME */);
                 long len = Math.Min(st.cbSize, MaxBytes);
                 var ms = new MemoryStream((int)Math.Min(len, int.MaxValue - 64));
                 byte[] buf = new byte[1 << 20];
