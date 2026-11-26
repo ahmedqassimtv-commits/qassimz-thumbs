@@ -17,11 +17,25 @@ namespace Qassimz.Thumbs.Viewer
 {
     public sealed class MainForm : Form
     {
-        public const string AppVersion = "1.0.0";
+        public const string AppVersion = "1.1.0";
         public const string Repo = "ahmedqassimtv-commits/qassimz-thumbs";
+
+        const int WM_NCHITTEST = 0x0084;
+        const int WM_NCLBUTTONDOWN = 0x00A1;
+        const int HTCAPTION = 0x0002;
+        const int HTLEFT = 10;
+        const int HTRIGHT = 11;
+        const int HTTOP = 12;
+        const int HTTOPLEFT = 13;
+        const int HTTOPRIGHT = 14;
+        const int HTBOTTOM = 15;
+        const int HTBOTTOMLEFT = 16;
+        const int HTBOTTOMRIGHT = 17;
+        const int ResizeBorder = 5;
 
         readonly WebView2 web = new WebView2 { Dock = DockStyle.Fill, DefaultBackgroundColor = Color.FromArgb(4, 10, 20) };
         readonly JavaScriptSerializer json = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
+        readonly object settingsLock = new object();
         readonly string startPath;
         CoreWebView2Environment env;
         Settings settings = Settings.Load();
@@ -33,37 +47,95 @@ namespace Qassimz.Thumbs.Viewer
         {
             this.startPath = startPath;
             Text = "QASSIMZ Thumbs";
+            FormBorderStyle = FormBorderStyle.None;
+            DoubleBuffered = true;
             BackColor = Color.FromArgb(4, 10, 20);
             MinimumSize = new Size(980, 640);
             StartPosition = FormStartPosition.CenterScreen;
-            var b = settings.Bounds;
-            if (b.Width >= 980 && b.Height >= 640 && Screen.AllScreens.Any(s => s.WorkingArea.IntersectsWith(b)))
+
+            Rectangle savedBounds;
+            bool savedMax;
+            lock (settingsLock)
+            {
+                savedBounds = settings.Bounds;
+                savedMax = settings.Maximized;
+            }
+            if (savedBounds.Width >= 980 && savedBounds.Height >= 640 && Screen.AllScreens.Any(s => s.WorkingArea.IntersectsWith(savedBounds)))
             {
                 StartPosition = FormStartPosition.Manual;
-                Bounds = b;
+                Bounds = savedBounds;
             }
             else Size = new Size(1280, 800);
-            if (settings.Maximized) WindowState = FormWindowState.Maximized;
+            Padding = savedMax ? Padding.Empty : new Padding(ResizeBorder);
+            if (savedMax) WindowState = FormWindowState.Maximized;
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             Controls.Add(web);
             Load += async (s, e) => await InitAsync();
+            Resize += (s, e) =>
+            {
+                Padding = WindowState == FormWindowState.Maximized ? Padding.Empty : new Padding(ResizeBorder);
+                UpdateMaximizedBounds();
+            };
             FormClosing += (s, e) =>
             {
-                settings.Maximized = WindowState == FormWindowState.Maximized;
-                if (WindowState == FormWindowState.Normal) settings.Bounds = Bounds;
-                settings.Save();
+                lock (settingsLock)
+                {
+                    settings.Maximized = WindowState == FormWindowState.Maximized;
+                    if (WindowState == FormWindowState.Normal) settings.Bounds = Bounds;
+                    settings.Save();
+                }
             };
         }
 
-        // ---------------------------------------------------------------- dark, brand-colored title bar
+        // ---------------------------------------------------------------- frameless window + dark DWM chrome
         [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
+        [DllImport("user32.dll")] static extern bool ReleaseCapture();
+        [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        void UpdateMaximizedBounds()
+        {
+            if (!IsHandleCreated) return;
+            var scr = Screen.FromHandle(Handle);
+            var wa = scr.WorkingArea;
+            var sb = scr.Bounds;
+            MaximizedBounds = new Rectangle(wa.X - sb.X, wa.Y - sb.Y, wa.Width, wa.Height);
+        }
 
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            UpdateMaximizedBounds();
             int on = 1; DwmSetWindowAttribute(Handle, 20, ref on, 4);              // immersive dark mode
+            int round = 2; DwmSetWindowAttribute(Handle, 33, ref round, 4);        // DWMWCP_ROUND (Windows 11)
             int caption = 0x00_38_1A_08; DwmSetWindowAttribute(Handle, 35, ref caption, 4); // COLORREF 0x00BBGGRR → #081A38
             int text = 0x00_F8_F4_F4; DwmSetWindowAttribute(Handle, 36, ref text, 4);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_NCHITTEST && WindowState == FormWindowState.Normal)
+            {
+                base.WndProc(ref m);
+                long lp = m.LParam.ToInt64();
+                int x = (short)(lp & 0xFFFF);
+                int y = (short)((lp >> 16) & 0xFFFF);
+                var pt = PointToClient(new Point(x, y));
+                bool left = pt.X <= ResizeBorder;
+                bool right = pt.X >= ClientSize.Width - ResizeBorder;
+                bool top = pt.Y <= ResizeBorder;
+                bool bottom = pt.Y >= ClientSize.Height - ResizeBorder;
+
+                if (top && left) { m.Result = (IntPtr)HTTOPLEFT; return; }
+                if (top && right) { m.Result = (IntPtr)HTTOPRIGHT; return; }
+                if (bottom && left) { m.Result = (IntPtr)HTBOTTOMLEFT; return; }
+                if (bottom && right) { m.Result = (IntPtr)HTBOTTOMRIGHT; return; }
+                if (left) { m.Result = (IntPtr)HTLEFT; return; }
+                if (right) { m.Result = (IntPtr)HTRIGHT; return; }
+                if (top) { m.Result = (IntPtr)HTTOP; return; }
+                if (bottom) { m.Result = (IntPtr)HTBOTTOM; return; }
+                return;
+            }
+            base.WndProc(ref m);
         }
 
         // ---------------------------------------------------------------- WebView2
@@ -107,23 +179,51 @@ namespace Qassimz.Thumbs.Viewer
             Thumbs.GetPngAsync(path, size).ContinueWith(t =>
             {
                 byte[] png = t.Status == TaskStatus.RanToCompletion ? t.Result : null;
-                BeginInvoke((Action)(() =>
+                if (IsDisposed || !IsHandleCreated)
                 {
-                    try
+                    try { deferral.Complete(); } catch { }
+                    return;
+                }
+                try
+                {
+                    BeginInvoke((Action)(() =>
                     {
-                        e.Response = png != null
-                            ? env.CreateWebResourceResponse(new MemoryStream(png), 200, "OK", "Content-Type: image/png\r\nCache-Control: max-age=86400")
-                            : env.CreateWebResourceResponse(null, 404, "Not Found", "");
-                    }
-                    catch { }
-                    deferral.Complete();
-                }));
+                        MemoryStream ms = null;
+                        try
+                        {
+                            if (png != null && png.Length > 0)
+                            {
+                                byte[] copy = new byte[png.Length];
+                                Buffer.BlockCopy(png, 0, copy, 0, png.Length);
+                                ms = new MemoryStream(copy, 0, copy.Length, writable: false, publiclyVisible: false);
+                                e.Response = env.CreateWebResourceResponse(ms, 200, "OK", "Content-Type: image/png\r\nCache-Control: max-age=86400");
+                                ms = null; // ownership transferred to WebView2 IStream wrapper
+                            }
+                            else
+                            {
+                                e.Response = env.CreateWebResourceResponse(null, 404, "Not Found", "");
+                            }
+                        }
+                        catch
+                        {
+                            ms?.Dispose();
+                        }
+                        finally
+                        {
+                            try { deferral.Complete(); } catch { }
+                        }
+                    }));
+                }
+                catch
+                {
+                    try { deferral.Complete(); } catch { }
+                }
             });
         }
 
         void Send(string type, object data)
         {
-            if (web.CoreWebView2 == null) return;
+            if (IsDisposed || web.CoreWebView2 == null) return;
             if (InvokeRequired) { BeginInvoke((Action)(() => Send(type, data))); return; }
             web.CoreWebView2.PostWebMessageAsJson(json.Serialize(new Dictionary<string, object> { { "type", type }, { "data", data } }));
         }
@@ -143,6 +243,23 @@ namespace Qassimz.Thumbs.Viewer
                 switch (cmd)
                 {
                     case "init": Reply(Info()); break;
+                    case "win_drag":
+                        ReleaseCapture();
+                        SendMessage(Handle, WM_NCLBUTTONDOWN, (IntPtr)HTCAPTION, IntPtr.Zero);
+                        break;
+                    case "win_min":
+                        WindowState = FormWindowState.Minimized;
+                        Reply(true);
+                        break;
+                    case "win_max":
+                        UpdateMaximizedBounds();
+                        WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
+                        Reply(WindowState == FormWindowState.Maximized);
+                        break;
+                    case "win_close":
+                        Reply(true);
+                        Close();
+                        break;
                     case "drop":
                         {
                             var f = e.AdditionalObjects?.OfType<CoreWebView2File>().FirstOrDefault();
@@ -160,20 +277,61 @@ namespace Qassimz.Thumbs.Viewer
                         break;
                     case "open": Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); Reply(true); break;
                     case "reveal": Process.Start("explorer.exe", "/select,\"" + path + "\""); Reply(true); break;
-                    case "openWith": Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL " + path); Reply(true); break;
+                    case "openWith": Process.Start("rundll32.exe", "shell32.dll,OpenAs_RunDLL \"" + path + "\""); Reply(true); break;
                     case "copy":
-                        using (var bmp = Thumbs.Render(path, 4096)) { if (bmp != null) Clipboard.SetImage(bmp); Reply(bmp != null); }
+                        Task.Run(() =>
+                        {
+                            Bitmap bmp = null;
+                            try
+                            {
+                                bmp = Thumbs.Render(path, 4096);
+                                if (bmp == null) { Reply(false); return; }
+                                if (IsDisposed || !IsHandleCreated) { bmp.Dispose(); return; }
+                                BeginInvoke((Action)(() =>
+                                {
+                                    try { Clipboard.SetImage(bmp); Reply(true); }
+                                    catch (Exception ex) { Send("error", ex.Message); Reply(false); }
+                                    finally { bmp.Dispose(); }
+                                }));
+                            }
+                            catch (Exception ex)
+                            {
+                                bmp?.Dispose();
+                                Send("error", ex.Message);
+                                Reply(false);
+                            }
+                        });
                         break;
                     case "export":
                         {
-                            var dlg = new SaveFileDialog { Filter = "PNG|*.png|JPEG|*.jpg", FileName = Path.GetFileNameWithoutExtension(path) + ".png" };
-                            if (dlg.ShowDialog(this) == DialogResult.OK)
-                                using (var bmp = Thumbs.Render(path, 8192))
+                            string targetFile = null;
+                            var format = System.Drawing.Imaging.ImageFormat.Png;
+                            using (var dlg = new SaveFileDialog { Filter = "PNG|*.png|JPEG|*.jpg", FileName = Path.GetFileNameWithoutExtension(path) + ".png" })
+                            {
+                                if (dlg.ShowDialog(this) == DialogResult.OK)
                                 {
-                                    bmp?.Save(dlg.FileName, dlg.FilterIndex == 2 ? System.Drawing.Imaging.ImageFormat.Jpeg : System.Drawing.Imaging.ImageFormat.Png);
-                                    Reply(bmp != null ? dlg.FileName : null);
+                                    targetFile = dlg.FileName;
+                                    format = dlg.FilterIndex == 2 ? System.Drawing.Imaging.ImageFormat.Jpeg : System.Drawing.Imaging.ImageFormat.Png;
                                 }
-                            else Reply(null);
+                            }
+                            if (string.IsNullOrEmpty(targetFile)) { Reply(null); break; }
+                            Task.Run(() =>
+                            {
+                                try
+                                {
+                                    using (var bmp = Thumbs.Render(path, 8192))
+                                    {
+                                        if (bmp == null) { Reply(null); return; }
+                                        bmp.Save(targetFile, format);
+                                        Reply(targetFile);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Send("error", ex.Message);
+                                    Reply(null);
+                                }
+                            });
                             break;
                         }
                     case "explorer":
@@ -187,8 +345,13 @@ namespace Qassimz.Thumbs.Viewer
                     case "clearCache": Thumbs.ClearCache(); Reply(Thumbs.CacheSize()); break;
                     case "url": OpenUrl(m["url"] as string); Reply(true); break;
                     case "settings":
-                        if (m.TryGetValue("value", out var v) && v is Dictionary<string, object> sv) { settings.Apply(sv); settings.Save(); }
-                        Reply(settings.ToDict());
+                        Dictionary<string, object> snapshot;
+                        lock (settingsLock)
+                        {
+                            if (m.TryGetValue("value", out var v) && v is Dictionary<string, object> sv) { settings.Apply(sv); settings.Save(); }
+                            snapshot = settings.ToDict();
+                        }
+                        Reply(snapshot);
                         break;
                     case "checkUpdate": _ = CheckUpdateAsync(true); Reply(true); break;
                     case "installUpdate": _ = InstallUpdateAsync(); Reply(true); break;
@@ -211,14 +374,21 @@ namespace Qassimz.Thumbs.Viewer
             };
             var drives = DriveInfo.GetDrives().Where(d => d.IsReady && (d.DriveType == DriveType.Fixed || d.DriveType == DriveType.Removable))
                 .Select(d => Place(string.IsNullOrEmpty(d.VolumeLabel) ? d.Name.TrimEnd('\\') : d.VolumeLabel + " (" + d.Name.TrimEnd('\\') + ")", d.RootDirectory.FullName, "drive")).ToList<object>();
+            string lastFolder;
+            Dictionary<string, object> settingsSnapshot;
+            lock (settingsLock)
+            {
+                lastFolder = settings.LastFolder;
+                settingsSnapshot = settings.ToDict();
+            }
             return new Dictionary<string, object>
             {
                 { "version", AppVersion }, { "github", "https://github.com/" + Repo },
                 { "support", "https://github.com/" + Repo + "/issues" }, { "site", "https://qassimz.com" },
                 { "places", places }, { "drives", drives },
-                { "start", startPath ?? settings.LastFolder ?? Path.Combine(home, "Pictures") },
+                { "start", startPath ?? lastFolder ?? Path.Combine(home, "Pictures") },
                 { "explorer", Registration.IsRegistered() }, { "raw", Registration.IsRawRegistered() },
-                { "cache", Thumbs.CacheSize() }, { "settings", settings.ToDict() }, { "update", update },
+                { "cache", Thumbs.CacheSize() }, { "settings", settingsSnapshot }, { "update", update },
                 { "designExt", Extractor.DesignExtensions }, { "rawExt", Extractor.RawExtensions },
             };
         }
@@ -230,9 +400,14 @@ namespace Qassimz.Thumbs.Viewer
         {
             var di = new DirectoryInfo(path);
             if (!di.Exists) return new Dictionary<string, object> { { "error", "المجلد مش موجود" } };
-            settings.LastFolder = di.FullName;
-            settings.PushRecent(di.FullName);
-            settings.Save();
+            List<string> recentCopy;
+            lock (settingsLock)
+            {
+                settings.LastFolder = di.FullName;
+                settings.PushRecent(di.FullName);
+                settings.Save();
+                recentCopy = new List<string>(settings.Recent);
+            }
             var items = new List<object>();
             try
             {
@@ -251,7 +426,7 @@ namespace Qassimz.Thumbs.Viewer
             return new Dictionary<string, object>
             {
                 { "path", di.FullName }, { "name", di.Name }, { "parent", di.Parent?.FullName },
-                { "items", items }, { "recent", settings.Recent },
+                { "items", items }, { "recent", recentCopy },
             };
         }
 
@@ -281,7 +456,9 @@ namespace Qassimz.Thumbs.Viewer
         // ---------------------------------------------------------------- self-update from GitHub Releases
         async Task CheckUpdateAsync(bool manual)
         {
-            if (!manual && !settings.AutoUpdate) return;
+            bool autoUpdate;
+            lock (settingsLock) autoUpdate = settings.AutoUpdate;
+            if (!manual && !autoUpdate) return;
             try
             {
                 ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;

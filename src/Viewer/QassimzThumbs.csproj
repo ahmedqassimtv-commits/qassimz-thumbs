@@ -8,8 +8,8 @@
     <PlatformTarget>x64</PlatformTarget>
     <ApplicationIcon>..\..\assets\logo.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
     <Product>QASSIMZ Thumbs</Product>
     <Company>QASSIMZ</Company>
     <Copyright>© Ahmed Qassim — QASSIMZ</Copyright>

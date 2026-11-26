@@ -236,7 +236,33 @@ function localStorageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {
 $("#btnOpen").onclick = async () => { const p = await call("pick", { path: st.path }); if (p) go(p); };
 $("#btnBack").onclick = () => { const p = st.back.pop(); if (p) go(p, false); };
 $("#btnUp").onclick = () => st.parent && go(st.parent);
-$("#search").oninput = (e) => { st.q = e.target.value; render(); };
+
+let searchTimer;
+$("#search").oninput = (e) => {
+  const val = e.target.value;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { st.q = val; render(); }, 120);
+};
+
+/* integrated frameless window controls & drag */
+$("#winMin").onclick = () => call("win_min");
+$("#winMax").onclick = () => call("win_max");
+$("#winClose").onclick = () => call("win_close");
+const bindWindowDrag = (el) => {
+  if (!el) return;
+  el.addEventListener("mousedown", (e) => {
+    if (e.button !== 0 || e.detail > 1) return;
+    if (e.target.closest("button, input, select, a, .win-controls, .crumbs button")) return;
+    if (host) host.postMessage({ cmd: "win_drag", id: 0 });
+  });
+  el.addEventListener("dblclick", (e) => {
+    if (e.target.closest("button, input, select, a, .win-controls, .crumbs button")) return;
+    call("win_max");
+  });
+};
+bindWindowDrag($("#topToolbar"));
+bindWindowDrag($("#brandDrag"));
+
 $$("#filterSeg button").forEach((b) => (b.onclick = () => { st.filter = b.dataset.v; $$("#filterSeg button").forEach((x) => x.classList.toggle("on", x === b)); render(); saveSettings(); }));
 $("#sortSel").onchange = (e) => { st.sort = e.target.value; render(); saveSettings(); };
 let rT; $("#sizeRange").oninput = (e) => { st.size = +e.target.value; $("#grid").style.setProperty("--t", st.size + "px"); clearTimeout(rT); rT = setTimeout(() => { render(); saveSettings(); }, 350); };
@@ -259,12 +285,60 @@ $("#lbImg").onpointerup = () => (drag = null);
 
 document.addEventListener("keydown", (e) => {
   const lb = !$("#lb").classList.contains("hidden");
-  if (e.key === "Escape") { if (lb) closeLb(); else $$(".modal").forEach((m) => m.classList.add("hidden")); }
-  if (lb && e.key === "ArrowLeft") lbStep(1);
-  if (lb && e.key === "ArrowRight") lbStep(-1);
-  if (!lb && e.key === "Enter") { const s = $(".tile.sel"); if (s) openItem(+s.dataset.i); }
-  if (!lb && e.key === "Backspace" && document.activeElement.tagName !== "INPUT") st.parent && go(st.parent);
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") { e.preventDefault(); $("#search").focus(); }
+  const active = document.activeElement;
+  const tag = active ? active.tagName : "";
+  const typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || !!(active && active.isContentEditable);
+  const mod = e.ctrlKey || e.metaKey;
+
+  if (e.code === "Escape") {
+    if (lb) { e.preventDefault(); closeLb(); return; }
+    const openModals = $$(".modal:not(.hidden)");
+    if (openModals.length) { e.preventDefault(); openModals.forEach((m) => m.classList.add("hidden")); return; }
+    if (active === $("#search") || st.q) {
+      e.preventDefault();
+      if (st.q) { st.q = ""; $("#search").value = ""; render(); }
+      $("#search").blur();
+      return;
+    }
+    return;
+  }
+  if (mod && !e.altKey && e.code === "KeyF") {
+    e.preventDefault();
+    $("#search").focus();
+    $("#search").select();
+    return;
+  }
+  if (mod && !e.altKey && e.code === "KeyO") {
+    e.preventDefault();
+    $("#btnOpen").click();
+    return;
+  }
+  if (mod && !e.altKey && e.code === "Comma") {
+    e.preventDefault();
+    $("#settings").classList.remove("hidden");
+    return;
+  }
+  if (lb) {
+    if (e.code === "ArrowLeft") { e.preventDefault(); lbStep(1); return; }
+    if (e.code === "ArrowRight") { e.preventDefault(); lbStep(-1); return; }
+    if (e.code === "Digit0" || e.code === "Numpad0") { e.preventDefault(); resetZoom(); return; }
+    return;
+  }
+  if (typing) return;
+  if (!mod && !e.altKey && !e.shiftKey && e.code === "Slash") {
+    e.preventDefault();
+    $("#search").focus();
+    $("#search").select();
+    return;
+  }
+  if ((e.code === "Enter" || e.code === "NumpadEnter" || e.code === "Space") && tag !== "BUTTON") {
+    const s = $(".tile.sel");
+    if (s) { e.preventDefault(); openItem(+s.dataset.i); }
+    return;
+  }
+  if (e.code === "Backspace") {
+    if (st.parent) { e.preventDefault(); go(st.parent); }
+  }
 });
 document.addEventListener("mouseup", (e) => { if (e.button === 3) $("#btnBack").click(); });
 
@@ -293,15 +367,12 @@ addEventListener("drop", (e) => {
   if (files.length && host && host.postMessageWithAdditionalObjects) host.postMessageWithAdditionalObjects({ cmd: "drop", id: 0 }, files);
 });
 
-/* specular light */
-addEventListener("pointermove", (e) => $$(".glass").forEach((g) => { const r = g.getBoundingClientRect(); g.style.setProperty("--mx", e.clientX - r.left + "px"); g.style.setProperty("--my", e.clientY - r.top + "px"); }));
-
 /* ------------------------------------------------------------ browser demo (design preview only) */
 function demo(cmd, x) {
   const P = "C:\\Users\\Ahmed\\Pictures\\QASSIMZ";
   const names = ["thumbnail-ep12.psd", "logo-qassimz.ai", "intro-title.mogrt", "poster-final.psd", "DSC_0421.NEF", "IMG_2210.CR3", "banner.xd", "brand-kit.eps", "frame-07.png", "cover.jpg", "teaser.mp4", "sketch.kra", "story-board.afdesign", "studio.jpg", "lower-third.mogrt", "episode-13.psd", "B-roll.mov", "font-test.png"];
   const R = {
-    init: { version: "1.0.0", github: "#", support: "#", site: "#", places: [{ name: "سطح المكتب", path: "C:\\Users\\Ahmed\\Desktop", icon: "desktop" }, { name: "التنزيلات", path: "C:\\Users\\Ahmed\\Downloads", icon: "downloads" }, { name: "الصور", path: "C:\\Users\\Ahmed\\Pictures", icon: "pictures" }, { name: "المستندات", path: "C:\\Users\\Ahmed\\Documents", icon: "documents" }, { name: "الفيديوهات", path: "C:\\Users\\Ahmed\\Videos", icon: "videos" }], drives: [{ name: "C:", path: "C:\\", icon: "drive" }, { name: "Projects (D:)", path: "D:\\", icon: "drive" }], start: P, explorer: true, raw: false, cache: 18400000, settings: {}, designExt: [".psd", ".ai", ".eps", ".xd", ".mogrt", ".kra", ".afdesign"], rawExt: [".nef", ".cr3"] },
+    init: { version: "1.1.0", github: "#", support: "#", site: "#", places: [{ name: "سطح المكتب", path: "C:\\Users\\Ahmed\\Desktop", icon: "desktop" }, { name: "التنزيلات", path: "C:\\Users\\Ahmed\\Downloads", icon: "downloads" }, { name: "الصور", path: "C:\\Users\\Ahmed\\Pictures", icon: "pictures" }, { name: "المستندات", path: "C:\\Users\\Ahmed\\Documents", icon: "documents" }, { name: "الفيديوهات", path: "C:\\Users\\Ahmed\\Videos", icon: "videos" }], drives: [{ name: "C:", path: "C:\\", icon: "drive" }, { name: "Projects (D:)", path: "D:\\", icon: "drive" }], start: P, explorer: true, raw: false, cache: 18400000, settings: {}, designExt: [".psd", ".ai", ".eps", ".xd", ".mogrt", ".kra", ".afdesign"], rawExt: [".nef", ".cr3"] },
     list: { path: P, parent: "C:\\Users\\Ahmed\\Pictures", recent: ["D:\\Projects\\Ep 12"], items: [{ n: "Exports", p: P + "\\Exports", d: true, m: 1 }, { n: "Raw footage", p: P + "\\Raw", d: true, m: 1 }, ...names.map((n, i) => ({ n, p: P + "\\" + n, s: 1e6 * (i + 3) * 7, m: 1000 - i, e: n.slice(n.lastIndexOf(".")).toLowerCase() }))] },
     details: { width: 3840, height: 2160, mode: "RGB", depth: 8, size: 48200000, modified: "2026-11-24 22:10", created: "2026-11-20 14:02", path: P + "\\thumbnail-ep12.psd" },
   };
@@ -316,7 +387,7 @@ function demoThumb(it, s) {
   const pal = [["#0a84ff", "#5ff0ff"], ["#081a38", "#2bb5ff"], ["#1e3a8a", "#32d4ff"], ["#040a14", "#0a84ff"], ["#3fa9ff", "#d8f6ff"]][h0 % 5];
   const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, pal[0]); gr.addColorStop(1, pal[1]); g.fillStyle = gr; g.fillRect(0, 0, w, h);
   g.globalAlpha = .35; g.fillStyle = "#fff"; g.beginPath(); g.arc(w * (0.2 + (h0 % 7) / 10), h * .4, Math.min(w, h) * .28, 0, 7); g.fill();
-  g.globalAlpha = .9; g.fillStyle = "#04132b"; g.font = `800 ${Math.round(h * .16)}px 'Thmanyah Display'`; g.textAlign = "center"; g.fillText(["قاسمز", "الحلقة ١٢", "QASSIMZ", "كواليس", "إنترو"][h0 % 5], w / 2, h * .78);
+  g.globalAlpha = .9; g.fillStyle = "#04132b"; g.font = `800 ${Math.round(h * .16)}px 'Google Sans Flex', 'Google Sans', sans-serif`; g.textAlign = "center"; g.fillText(["قاسمز", "الحلقة ١٢", "QASSIMZ", "كواليس", "إنترو"][h0 % 5], w / 2, h * .78);
   return (demoCache[key] = c.toDataURL());
 }
 

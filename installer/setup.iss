@@ -1,6 +1,6 @@
 ﻿; QASSIMZ Thumbs — Inno Setup script (per-user, no admin)
 #ifndef AppVer
-  #define AppVer "1.0.0"
+  #define AppVer "1.1.0"
 #endif
 #define AppName "QASSIMZ Thumbs"
 #define AppExe "QASSIMZ Thumbs.exe"
