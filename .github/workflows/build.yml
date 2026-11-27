@@ -66,6 +66,16 @@ jobs:
       - name: Portable zip
         shell: pwsh
         run: Compress-Archive -Path "dist/app/*" -DestinationPath "dist/QASSIMZ-Thumbs-Portable.zip"
+      - name: Build Delta Package (.qpkg + manifest.json)
+        shell: pwsh
+        run: |
+          $ver = ${{ needs.version.outputs.ver }}
+          $ver = ($ver -replace '^[vV]', '')
+          if (-not $ver) { $ver = '1.0.0' }
+          Invoke-WebRequest "https://raw.githubusercontent.com/ahmedqassimtv-commits/qassimz-hub/main/tools/qpkg_packager.py" -OutFile "qpkg_packager.py" -UseBasicParsing
+          python qpkg_packager.py pack --input "dist/app" --output-dir "dist/delta" --app-id "qassimz-thumbs" --version "$ver"
+          python qpkg_packager.py verify --manifest "dist/delta/manifest.json" --qpkg "dist/delta/qassimz-thumbs-v$ver.qpkg"
+
       - uses: actions/upload-artifact@v4
         with:
           name: QASSIMZ-Thumbs
@@ -84,8 +94,12 @@ jobs:
             ## ⬇️ التحميل
             - **QASSIMZ-Thumbs-Setup**: التسطيب العادي (موصى بيه، وبيشغّل المصغّرات في الويندوز وبيحدّث نفسه)
             - **Portable.zip**: من غير تسطيب (شغّل المصغّرات من ⚙ الإعدادات)
+            dist/delta/manifest.json
+            dist/delta/*.qpkg
 
             لو ظهرت شاشة SmartScreen: **More info ← Run anyway**.
           files: |
             dist/QASSIMZ-Thumbs-Setup-*.exe
             dist/QASSIMZ-Thumbs-Portable.zip
+            dist/delta/manifest.json
+            dist/delta/*.qpkg
