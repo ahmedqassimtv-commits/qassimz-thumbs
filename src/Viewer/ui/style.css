@@ -1,13 +1,13 @@
 :root{
-  --bg:#060c18;
-  --txt:#f4f7ff;
-  --mut:rgba(235,240,255,.64);
+  --bg:#0B070E;
+  --txt:#FFF5F8;
+  --mut:rgba(255,235,242,.66);
   --line:rgba(255,255,255,.18);
   --glass:rgba(255,255,255,.08);
   --glass2:rgba(255,255,255,.14);
-  --acc:#0a84ff;           /* Thumbs blue */
-  --acc2:#38bdf8;
-  --blu:#5ff0ff;
+  --acc:#FF3366;           /* Thumbs Rose */
+  --acc2:#FF6B8B;
+  --blu:#FFB347;
   --ok:#34d399;
   --r:24px;
   --font:'Google Sans Flex','Google Sans',"Segoe UI",Tahoma,system-ui,sans-serif;
@@ -25,11 +25,10 @@ button,input{font:inherit;color:inherit}
 .bg{
   position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none;
   background:
-    radial-gradient(58% 52% at 86% 6%, rgba(56,189,248,.26) 0%, transparent 64%),
-    radial-gradient(52% 48% at 14% 14%, rgba(99,102,241,.22) 0%, transparent 66%),
-    radial-gradient(56% 48% at 18% 92%, rgba(20,184,166,.22) 0%, transparent 68%),
-    radial-gradient(46% 42% at 82% 88%, rgba(244,114,182,.18) 0%, transparent 68%),
-    radial-gradient(44% 38% at 50% 48%, rgba(10,132,255,.16) 0%, transparent 72%),
+    radial-gradient(58% 52% at 86% 6%, rgba(255,51,102,.28) 0%, transparent 64%),
+    radial-gradient(52% 48% at 14% 14%, rgba(255,107,139,.20) 0%, transparent 66%),
+    radial-gradient(56% 48% at 18% 92%, rgba(255,159,10,.18) 0%, transparent 68%),
+    radial-gradient(46% 42% at 82% 88%, rgba(56,189,248,.16) 0%, transparent 68%),
     var(--bg);
 }
 

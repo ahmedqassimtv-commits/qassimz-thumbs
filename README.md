@@ -71,3 +71,15 @@ dotnet build QassimzThumbs.sln -c Release
 
 ---
 <div align="center">© 2026 أحمد قاسم — قَاسِمز · MIT License</div>
+
+<!-- QASSIMZ-LIQUID-GLASS-RELEASE -->
+---
+
+## ✨ الجديد في الإصدار `v1.3.0` — تصميم Apple Liquid Glass & أيقونات v2
+
+<img src="assets/logo.svg" width="72" height="72" align="right" alt="qassimz-thumbs (Th)" />
+
+- أيقونة جديدة `Th` (**v2 · Adobe 2022 Style**) بلون وردي-قرمزي (`#FF3366`).
+- إعادة تلوين واجهة **Liquid Glass** بالكامل من الأزرق/الإنديجو إلى باليت Rose/Coral/Gold متطابق مع الشعار الجديد.
+
+<!-- /QASSIMZ-LIQUID-GLASS-RELEASE -->

@@ -17,7 +17,7 @@ namespace Qassimz.Thumbs.Viewer
 {
     public sealed class MainForm : Form
     {
-        public const string AppVersion = "1.2.0";
+        public const string AppVersion = "1.3.0";
         public const string Repo = "ahmedqassimtv-commits/qassimz-thumbs";
 
         const int WM_NCHITTEST = 0x0084;
