@@ -1,85 +1,89 @@
 <div align="center">
 
-<img src="assets/logo.png" width="140" alt="QASSIMZ Thumbs">
+<img src="assets/logo.svg" alt="QASSIMZ Thumbs" width="112" height="112" />
 
 # QASSIMZ Thumbs
+### محرك مصغّرات ويندوز والعارض الفوري
 
-**ملفات PSD و AI وكل ملفات التصميم والـ RAW بتظهر كصور في الويندوز، ومعاها عارض بشكل قَاسِمز.**
+<!-- اللغات المدعومة أسفل اللوجو مباشرة -->
+<p>
+  <img src="https://img.shields.io/badge/Language-العربية%20(RTL)-10B981?style=for-the-badge" alt="العربية (RTL)" /> <img src="https://img.shields.io/badge/Language-English-3B82F6?style=for-the-badge" alt="English" />
+</p>
 
-من **أحمد قاسم — قَاسِمز** · مجاني ومفتوح المصدر · Windows 10/11
+<p>
+  <a href="https://github.com/ahmedqassimtv-commits/qassimz-thumbs/releases/latest"><img src="https://img.shields.io/badge/Version-v1.4.0-F59E0B?style=flat-square" alt="Version" /></a>
+  <img src="https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-18181B?style=flat-square" alt="Platform" />
+  <a href="https://github.com/ahmedqassimtv-commits/qassimz-hub/releases/latest"><img src="https://img.shields.io/badge/QASSIMZ-Creative%20Suite-0EA5E9?style=flat-square" alt="QASSIMZ Suite" /></a>
+</p>
 
-[⬇️ تحميل آخر إصدار](https://github.com/ahmedqassimtv-commits/qassimz-thumbs/releases/latest) ·
-[🐞 الدعم والإبلاغ عن مشكلة](https://github.com/ahmedqassimtv-commits/qassimz-thumbs/issues) ·
-[🌐 qassimz.com](https://qassimz.com)
+<p><em>64-Bit Windows Explorer IThumbnailProvider & Instant Embedded-Preview Viewer</em></p>
 
-<img src="docs/screenshot-grid.png" width="860" alt="QASSIMZ Thumbs">
+<br />
+
+<img src="docs/preview-4k.png" alt="QASSIMZ Thumbs — 4K UHD Preview" width="100%" />
 
 </div>
 
 ---
 
-## ✨ بيعمل إيه
+## 1. نظرة عامة
 
-### 1) مصغّرات جوه الويندوز نفسه
-بعد التسطيب، الملفات دي بتظهر **بصورتها** في File Explorer بدل الأيقونة الفاضية:
+محرك أصلي (64-bit COM `IThumbnailProvider`) يعرض مصغّرات ملفات التصميم والمونتاج والصور الخام داخل مستكشف ويندوز بسرعة فائقة عبر استخراج المعاينة المدمجة، مع عارض فوري مدمج بهوية **Darkroom Editorial Monochrome**.
 
-| النوع | الصيغ |
-|---|---|
-| 🎨 أدوبي | **PSD · PSB** · **AI** · **EPS** · INDD · **XD** · **MOGRT** |
-| ✏️ تصميم | Sketch · Affinity (Designer / Photo / Publisher) · CorelDRAW · Clip Studio |
-| 🖌️ رسم | Krita · OpenRaster · Procreate |
-| 📷 RAW (اختياري) | CR2 · CR3 · NEF · ARW · DNG · RAF · ORF · RW2 · PEF · SRW … |
-
-### 2) عارض QASSIMZ Thumbs
-- يفتح أي مجلد ويعرض **كل حاجة** كمصغّرات: التصميمات والصور والفيديوهات (WebP / HEIC / MP4 …) وحتى أيقونات البرامج.
-- **تكبير** بدبل كليك، والأسهم للتنقل، والعجلة للزوم والسحب.
-- تفاصيل الملف (الأبعاد، والألوان RGB / CMYK، والـ bit depth، والحجم، والتاريخ).
-- **انسخ الصورة** أو **صدّرها PNG / JPG** (حتى من PSD أو AI)، أو افتحها في البرنامج بتاعها.
-- فلترة (تصميم / صور / RAW / فيديو)، وبحث، وترتيب، والتحكم في حجم المصغّرات.
-- اسحب أي مجلد وارميه على البرنامج، أو كليك يمين على المجلد واختار **«اعرض بـ QASSIMZ Thumbs»**.
-- **تحديث تلقائي** من GitHub من غير صلاحيات أدمن.
-
-<img src="docs/screenshot-viewer.png" width="760">
-
-## 🚀 التسطيب
-1. نزّل `QASSIMZ-Thumbs-Setup-x.x.x.exe` من [Releases](https://github.com/ahmedqassimtv-commits/qassimz-thumbs/releases/latest).
-2. سطّبه (فيه اختيار لمصغّرات RAW).
-3. لو ظهرت شاشة SmartScreen: **More info ← Run anyway**.
-4. لو لسه شايف أيقونات في مجلد كنت فاتحه قبل كده: افتح البرنامج ← ⚙ ← **«حدّث مصغّرات الويندوز»**.
-
-> **ملاحظة PSD:** البرنامج بيعرض الصورة المدمجة (composite). لو الملف اتحفظ من غير **Maximize Compatibility** بيعرض المصغّر الصغير اللي فوتوشوب حطه جوه الملف.
-> **AI / INDD:** بيستخدم المعاينة اللي إليستريتور حاططها جوه الملف (XMP).
-
-## 🛠️ للمطورين
-
-```
-src/Shell/Extractor.cs          فك الصيغ: PSD/PSB، XMP، DOS-EPS، ZIP (XD/Sketch/Krita/MOGRT…)، JPEG/PNG مدمجة (RAW/Affinity)
-src/Shell/ThumbnailProvider.cs  IThumbnailProvider للويندوز + التسجيل في HKCU
-src/Viewer/                     العارض (WinForms + WebView2) والواجهة في ui/
-installer/setup.iss             الـ installer (من غير أدمن)
-```
-
-```bash
-dotnet build QassimzThumbs.sln -c Release
-```
-
-**نشر إصدار جديد:** غيّر `AppVersion` في `src/Viewer/MainForm.cs` واعمل push على `main`. GitHub Actions هيبني الـ Setup والنسخة Portable وينزّلهم في Releases، والبرنامج المتسطب هيحدّث نفسه.
-
-## ❤️ الدعم
-- مشكلة أو صيغة عايزها تتضاف؟ [افتح Issue](https://github.com/ahmedqassimtv-commits/qassimz-thumbs/issues).
-- عجبك البرنامج؟ اديله ⭐.
+> **ملاحظة:** جميع الصيغ (بما فيها كافة صيغ فوتوشوب `.psd`, `.psb`, `.psdt`, `.pdd`) تُسجَّل مباشرة تحت `HKCU\Software\Classes` بدون صلاحيات مسؤول (Zero UAC).
 
 ---
-<div align="center">© 2026 أحمد قاسم — قَاسِمز · MIT License</div>
 
-<!-- QASSIMZ-LIQUID-GLASS-RELEASE -->
+## 2. المميزات الرئيسية
+
+1. **دعم كامل لصيغ فوتوشوب:** قراءة فورية من الترويسة لجميع صيغ Photoshop (`.psd`, `.psb`, `.psdt`, `.pdd`).
+2. **دعم صيغ التصميم والموشن:** عرض مصغرات `.ai`, `.eps`, `.svg`, `.mogrt`, `.aegraphic`.
+3. **دعم الصور الخام والحديثة:** استخراج Embedded JPEG فوري لملفات `RAW` (`CR3`, `CR2`, `ARW`, `NEF`, `DNG`) و `HEIC` و `WEBP`.
+4. **تسجيل فوري بدون صلاحيات مسؤول (HKCU):** تفعيل وإيقاف كل صيغة مباشرة تحت `HKCU\Software\Classes` بدون UAC.
+5. **تحديث حقيقي لكاش ويندوز:** تنظيف آمن لملفات `thumbcache_*.db` وإشعار فوري لـ Windows Explorer عبر `SHChangeNotify`.
+6. **العارض الفوري (Quick Viewer):** سحب وإفلات أي ملف لمعاينته فوق خلفية Checkerboard للشفافية مع عرض الأبعاد والحجم وزمن الاستخراج بالـ `ms`.
+
 ---
 
-## ✨ الجديد في الإصدار `v1.3.0` — تصميم Apple Liquid Glass & أيقونات v2
+## 3. التحميل والتثبيت
 
-<img src="assets/logo.svg" width="72" height="72" align="right" alt="qassimz-thumbs (Th)" />
+1. **الطريقة الموصى بها (عبر QASSIMZ Hub):**
+   - حمّل وافتح [**QASSIMZ Hub**](https://github.com/ahmedqassimtv-commits/qassimz-hub/releases/latest) لتثبيت **QASSIMZ Thumbs** وتلقي جميع التحديثات التفاضلية (`.qpkg`) تلقائياً بضغطة زر.
+2. **التحميل المباشر من GitHub Releases:**
+   - افتح صفحة [**أحدث إصدار (v1.4.0)**](https://github.com/ahmedqassimtv-commits/qassimz-thumbs/releases/latest).
+   - حمّل ملف المثبّت (`Setup.exe`) للتثبيت العادي بدون صلاحيات مسؤول، أو النسخة المحمولة (`Portable.zip`) إن وجدت.
 
-- أيقونة جديدة `Th` (**v2 · Adobe 2022 Style**) بلون وردي-قرمزي (`#FF3366`).
-- إعادة تلوين واجهة **Liquid Glass** بالكامل من الأزرق/الإنديجو إلى باليت Rose/Coral/Gold متطابق مع الشعار الجديد.
+---
 
-<!-- /QASSIMZ-LIQUID-GLASS-RELEASE -->
+## 4. متطلبات التشغيل
+
+1. نظام التشغيل: Windows 10 / 11 (64-bit).
+2. لا يتطلب صلاحيات مسؤول (يعمل بالكامل على مستوى المستخدم `HKCU`).
+
+---
+
+## 5. منظومة قَاسِمز الإبداعية (QASSIMZ Creative Suite)
+
+| # | التطبيق | الوصف | المستودع |
+|---:|---|---|---|
+| 1 | **QASSIMZ Hub** | مركز ومنظومة قَاسِمز الإبداعية | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-hub) |
+| 2 | **QASSIMZ Thumbs** **(الحالي)** | محرك مصغّرات ويندوز والعارض الفوري | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-thumbs) |
+| 3 | **QASSIMZ FONTs** | مدير الخطوط الاحترافي والمزامنة السحابية | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-fonts) |
+| 4 | **QASSIMZ Studio** | استوديو المونتاج والتحرير الاحترافي | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-studio) |
+| 5 | **QASSIMZ Producer** | مساحة إدارة الإنتاج وصناعة المحتوى | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-producer) |
+| 6 | **QASSIMZ Music** | مشغّل الموسيقى ومكتبة الصوتيات للمونتاج | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-music) |
+| 7 | **QDM — QASSIMZ Download Manager** | مدير التحميل السريع متعدد المسارات | [GitHub](https://github.com/ahmedqassimtv-commits/qdm) |
+| 8 | **QASSIMZ Organizer** | منظّم مجلدات المشاريع والملفات الإبداعية | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-organizer) |
+| 9 | **QASSIMZ Study** | منصة المذاكرة والتركيز وإدارة الدروس | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-study) |
+| 10 | **QASSIMZ VOX FX** | إضافة المؤثرات البصرية والصوتية لـ Premiere Pro | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-vox-fx) |
+| 11 | **QASSIMZ Captions** | إضافة الترجمة والكتابة التلقائية لـ Premiere Pro | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-captions) |
+| 12 | **QASSIMZ Footage** | إضافة البحث واستيراد اللقطات لـ Premiere Pro | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-footage) |
+| 13 | **QASSIMZ MOGRT Hub** | مكتبة ومدير قوالب MOGRT لـ Premiere Pro | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-mogrt-hub) |
+| 14 | **QASSIMZ MOGRT Maker** | صانع قوالب MOGRT الاحترافي لـ Premiere Pro | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-mogrt-maker) |
+| 15 | **QASSIMZ Export** | إضافة التصدير الذكي السريع لـ Premiere Pro | [GitHub](https://github.com/ahmedqassimtv-commits/qassimz-export) |
+
+---
+
+<div align="center">
+  <sub>© 2026 <strong>QASSIMZ Creative Suite</strong> — Ahmed Qassim. جميع الحقوق محفوظة.</sub>
+</div>
