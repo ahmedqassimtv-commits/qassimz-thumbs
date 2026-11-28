@@ -103,3 +103,20 @@ jobs:
             dist/QASSIMZ-Thumbs-Portable.zip
             dist/delta/manifest.json
             dist/delta/*.qpkg
+
+      - name: Notify QASSIMZ Hub catalog (instant sync)
+        if: success()
+        continue-on-error: true
+        env:
+          HUB_SYNC_TOKEN: ${{ secrets.QASSIMZ_HUB_DISPATCH_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$HUB_SYNC_TOKEN" ]; then
+            echo "QASSIMZ_HUB_DISPATCH_TOKEN not set; Hub 30-min scheduled sync will pick up this release."
+            exit 0
+          fi
+          curl -fsSL -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $HUB_SYNC_TOKEN" \
+            https://api.github.com/repos/ahmedqassimtv-commits/qassimz-hub/dispatches \
+            -d "{\"event_type\":\"app-released\",\"client_payload\":{\"repo\":\"${{ github.repository }}\",\"ref\":\"${{ github.ref }}\"}}"
