@@ -31,7 +31,8 @@ namespace Qassimz.Thumbs
     public sealed class ThumbnailProvider : IThumbnailProvider, IInitializeWithStream
     {
         public const string Clsid = "949B93CF-8658-43F7-9720-21A186C8A55A";
-        const long MaxBytes = 1536L * 1024 * 1024; // don't read files bigger than 1.5 GB fully
+        // Cap initial buffer to 64 MB for fast embedded preview extraction (avoids Explorer timeouts on huge files)
+        const long MaxBytes = 64L * 1024 * 1024;
         MemoryStream _data;
 
         public void Initialize(IStream pstream, uint grfMode)
@@ -39,9 +40,9 @@ namespace Qassimz.Thumbs
             try
             {
                 pstream.Stat(out System.Runtime.InteropServices.ComTypes.STATSTG st, 1 /* STATFLAG_NONAME */);
-                long len = Math.Min(st.cbSize, MaxBytes);
+                long len = Math.Min(Math.Max(0, st.cbSize), MaxBytes);
                 var ms = new MemoryStream((int)Math.Min(len, int.MaxValue - 64));
-                byte[] buf = new byte[1 << 20];
+                byte[] buf = new byte[1 << 18]; // 256 KB chunks
                 IntPtr pRead = Marshal.AllocCoTaskMem(4);
                 try
                 {
@@ -119,18 +120,18 @@ namespace Qassimz.Thumbs
         }
     }
 
-    /// <summary>Per-user registration (HKCU) — used by the installer and the viewer's settings toggle.</summary>
+    /// <summary>Per-user registration (HKCU\Software\Classes) — zero UAC required.</summary>
     public static class Registration
     {
-        const string ThumbHandlerKey = "{e357fccd-a995-4576-b01f-234630154e96}";
+        public const string ThumbHandlerKey = "{e357fccd-a995-4576-b01f-234630154e96}";
         static string ClsidKey => "{" + ThumbnailProvider.Clsid + "}";
 
-        public static void Register(string dllPath, bool includeRaw)
+        public static void EnsureComServer(string dllPath)
         {
             var asm = typeof(ThumbnailProvider).Assembly;
             using (var k = Registry.CurrentUser.CreateSubKey(@"Software\Classes\CLSID\" + ClsidKey))
             {
-                k.SetValue("", "QASSIMZ Thumbs");
+                k.SetValue("", "QASSIMZ Thumbs Thumbnail Provider");
                 k.SetValue("DisableProcessIsolation", 0, RegistryValueKind.DWord);
                 using (var ip = k.CreateSubKey("InprocServer32"))
                 {
@@ -143,50 +144,72 @@ namespace Qassimz.Thumbs
                 }
                 using (var cat = k.CreateSubKey(@"Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}")) { }
             }
+            using (var approved = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved"))
+            {
+                approved.SetValue(ClsidKey, "QASSIMZ Thumbs Thumbnail Provider");
+            }
+        }
+
+        public static void Register(string dllPath, bool includeRaw)
+        {
+            EnsureComServer(dllPath);
             foreach (var ext in Extractor.DesignExtensions) SetExt(ext, true);
+            foreach (var ext in Extractor.ModernExtensions) SetExt(ext, true);
             foreach (var ext in Extractor.RawExtensions) SetExt(ext, includeRaw);
+            Notify();
+        }
+
+        public static void SetExtensions(string dllPath, System.Collections.Generic.IEnumerable<string> extensions, bool enabled)
+        {
+            if (enabled) EnsureComServer(dllPath);
+            foreach (var ext in extensions) SetExt(ext, enabled);
             Notify();
         }
 
         public static void Unregister()
         {
             foreach (var ext in Extractor.DesignExtensions) SetExt(ext, false);
+            foreach (var ext in Extractor.ModernExtensions) SetExt(ext, false);
             foreach (var ext in Extractor.RawExtensions) SetExt(ext, false);
             try { Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\CLSID\" + ClsidKey, false); } catch { }
+            try
+            {
+                using (var approved = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved", true))
+                    approved?.DeleteValue(ClsidKey, false);
+            }
+            catch { }
             Notify();
         }
 
-        public static bool IsRegistered()
+        public static bool IsExtensionRegistered(string ext)
         {
-            using (var k = Registry.CurrentUser.OpenSubKey(@"Software\Classes\.psd\ShellEx\" + ThumbHandlerKey))
+            using (var k = Registry.CurrentUser.OpenSubKey(@"Software\Classes\" + ext + @"\ShellEx\" + ThumbHandlerKey))
                 return k != null && string.Equals(k.GetValue("") as string, ClsidKey, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static bool IsRawRegistered()
-        {
-            using (var k = Registry.CurrentUser.OpenSubKey(@"Software\Classes\.cr2\ShellEx\" + ThumbHandlerKey))
-                return k != null;
-        }
+        public static bool IsRegistered() => IsExtensionRegistered(".psd");
+
+        public static bool IsRawRegistered() => IsExtensionRegistered(".cr3") || IsExtensionRegistered(".cr2") || IsExtensionRegistered(".dng");
 
         static void SetExt(string ext, bool on)
         {
             string path = @"Software\Classes\" + ext + @"\ShellEx\" + ThumbHandlerKey;
+            string sfaPath = @"Software\Classes\SystemFileAssociations\" + ext + @"\ShellEx\" + ThumbHandlerKey;
             if (on)
             {
                 using (var k = Registry.CurrentUser.CreateSubKey(path)) k.SetValue("", ClsidKey);
-                // also on the SystemFileAssociations branch (wins over some app ProgIDs)
-                using (var k = Registry.CurrentUser.CreateSubKey(@"Software\Classes\SystemFileAssociations\" + ext + @"\ShellEx\" + ThumbHandlerKey)) k.SetValue("", ClsidKey);
+                using (var k = Registry.CurrentUser.CreateSubKey(sfaPath)) k.SetValue("", ClsidKey);
             }
             else
             {
                 try { Registry.CurrentUser.DeleteSubKey(path, false); } catch { }
-                try { Registry.CurrentUser.DeleteSubKey(@"Software\Classes\SystemFileAssociations\" + ext + @"\ShellEx\" + ThumbHandlerKey, false); } catch { }
+                try { Registry.CurrentUser.DeleteSubKey(sfaPath, false); } catch { }
             }
         }
 
         [DllImport("shell32.dll")]
         static extern void SHChangeNotify(int eventId, uint flags, IntPtr item1, IntPtr item2);
 
-        public static void Notify() => SHChangeNotify(0x08000000 /* SHCNE_ASSOCCHANGED */, 0, IntPtr.Zero, IntPtr.Zero);
+        public static void Notify() => SHChangeNotify(0x08000000 /* SHCNE_ASSOCCHANGED */, 0x0000 /* SHCNF_IDLIST */, IntPtr.Zero, IntPtr.Zero);
     }
 }

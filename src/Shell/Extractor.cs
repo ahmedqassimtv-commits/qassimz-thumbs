@@ -23,9 +23,14 @@ namespace Qassimz.Thumbs
         /// <summary>Extensions handled by this extractor (also registered for Explorer thumbnails).</summary>
         public static readonly string[] DesignExtensions =
         {
-            ".psd", ".psb", ".psdt", ".ai", ".ait", ".eps", ".epsf", ".indd", ".indt", ".idml",
+            ".psd", ".psb", ".psdt", ".pdd", ".ai", ".ait", ".eps", ".epsf", ".svg", ".indd", ".indt", ".idml",
             ".xd", ".sketch", ".kra", ".ora", ".procreate", ".mogrt", ".aegraphic",
             ".afdesign", ".afphoto", ".afpub", ".cdr", ".clip"
+        };
+
+        public static readonly string[] ModernExtensions =
+        {
+            ".webp", ".heic", ".heif", ".svg"
         };
 
         public static readonly string[] RawExtensions =
@@ -36,7 +41,9 @@ namespace Qassimz.Thumbs
         public static bool Handles(string ext)
         {
             ext = (ext ?? "").ToLowerInvariant();
-            return Array.IndexOf(DesignExtensions, ext) >= 0 || Array.IndexOf(RawExtensions, ext) >= 0;
+            return Array.IndexOf(DesignExtensions, ext) >= 0
+                || Array.IndexOf(ModernExtensions, ext) >= 0
+                || Array.IndexOf(RawExtensions, ext) >= 0;
         }
 
         // ------------------------------------------------------------------ entry points
@@ -50,7 +57,7 @@ namespace Qassimz.Thumbs
 
         public static Bitmap FromStream(Stream s, int size)
         {
-            byte[] head = new byte[16];
+            byte[] head = new byte[32];
             int n = ReadFully(s, head, 0, head.Length);
             s.Position = 0;
             if (n < 4) return null;
@@ -64,13 +71,16 @@ namespace Qassimz.Thumbs
                     result = FromZip(s);
                 else if (head[0] == 0xC5 && head[1] == 0xD0 && head[2] == 0xD3 && head[3] == 0xC6)
                     result = FromDosEps(s);
+                else if (head[0] == 'R' && head[1] == 'I' && head[2] == 'F' && head[3] == 'F'
+                         && n >= 12 && head[8] == 'W' && head[9] == 'E' && head[10] == 'B' && head[11] == 'P')
+                    result = TryDecode(ReadAll(s, 32L * 1024 * 1024));
             }
             catch { result = null; }
 
             if (result == null)
             {
-                // generic: XMP thumbnail → embedded JPEG (largest) → embedded PNG
-                byte[] all = ReadAll(s, 400L * 1024 * 1024);
+                // generic: XMP thumbnail (AI/EPS/INDD) → embedded JPEG (RAW/HEIC) → embedded PNG (Affinity)
+                byte[] all = ReadAll(s, 64L * 1024 * 1024);
                 result = FromXmp(all) ?? LargestEmbeddedJpeg(all) ?? FirstEmbeddedPng(all);
             }
             return result == null ? null : Fit(result, size);

@@ -5,15 +5,16 @@
     <RootNamespace>Qassimz.Thumbs</RootNamespace>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.4.0.0</AssemblyVersion>
+    <FileVersion>1.4.0.0</FileVersion>
     <Product>QASSIMZ Thumbs</Product>
     <Company>QASSIMZ</Company>
-    <Copyright>© Ahmed Qassim — QASSIMZ</Copyright>
+    <Copyright>© 2026 QASSIMZ</Copyright>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
 </Project>
